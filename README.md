@@ -1,14 +1,14 @@
-# Laboratory Exercises 1–6 — `DB_Timon`
+# Laboratory Exercises 1–7 — `DB_Timon`
 
 Everything below has been built and verified on this machine:
 
 - **Database:** MariaDB 10.11 (XAMPP) is running; `DB_Timon` contains the Lab 1–6 schema including audit/session tables, 5 triggers, 3 procedures and role-based users.
-- **SQL:** re-runnable scripts for all six labs, plus extra seed data, in `sql/`.
-- **Answers:** all lab questions answered in `answers/` (`Lab_Questions_Answers.md`, `Lab4_Questions_Answers.md`, `Lab5_Questions_Answers.md`, `Lab6_Questions_Answers.md`).
-- **VB.NET app:** complete Visual Basic Windows Forms project in `vbnet/AcademicSystem/`; builds with **0 warnings, 0 errors** and was runtime-tested for login, roles, audit viewing, validation, sessions and backup.
-- **Latest labs:** gradebook tables/views, role dashboards, indexed procedures, advanced reports, encrypted credentials, audit trails, validation triggers, session management and backup utilities.
+- **SQL:** re-runnable scripts for all six SQL labs, plus extra seed data, in `sql/`.
+- **Answers:** all lab questions answered in `answers/` (`Lab_Questions_Answers.md`, `Lab4_Questions_Answers.md`, `Lab5_Questions_Answers.md`, `Lab6_Questions_Answers.md`, `Lab7_Questions_Answers.md`).
+- **VB.NET app:** complete Visual Basic Windows Forms project in `vbnet/AcademicSystem/`; builds with **0 warnings, 0 errors** and was runtime-tested for login, roles, MDI navigation, charts, real-time refresh, search, notifications, bulk entry, error dialog and exports.
+- **Latest labs:** gradebook tables/views, role dashboards, indexed procedures, advanced reports, encrypted credentials, audit trails, validation triggers, session management, backup utilities and the Lab 7 advanced frontend/UX layer.
 
-All required screenshots have been captured in dbGate / Visual Studio and inserted into the completed Lab 5 and Lab 6 PDFs listed near the end of this file.
+All required screenshots have been captured in dbGate / Visual Studio and inserted into the completed Lab 5, Lab 6 and Lab 7 PDFs listed near the end of this file.
 
 ---
 
@@ -214,3 +214,16 @@ For any ER diagram screenshot: in dbGate right-click `DB_Timon` → **ER diagram
 - **VB.NET modules/forms:** `SecureConfig.vb`, `Db.vb`, `Session.vb`, `SessionMonitor.vb`, `InputValidator.vb`, `AuditLogger.vb`, `AuditLogForm.vb`, `BackupForm.vb`, `PdfExporter.vb`.
 
 Run `sql/10_Lab6_Security_Audit_Backup.sql` after the earlier lab scripts. It is re-runnable and reports "already exists" without dropping data. Demo database roles are `dbt_admin`, `dbt_teacher` and `dbt_student`; their credentials are encrypted at rest by `SecureConfig.vb`.
+
+---
+
+## Final Lab 7 deliverables
+
+- **Completed PDF:** `output/results/Lab7_Completed.pdf` (built from the original Lab 7 `.docx` template with full, uncropped screenshots, short answers, header name and conclusion).
+- **Completed Word source:** `output/results/Lab7_Completed.docx`.
+- **Screenshots:** `output/results/screenshots/lab7_*.png` — MDI parent, charts/graphs, advanced DataGridView row colouring, notification center, advanced search, real-time refresh, custom error dialog, settings, bulk grade entry, code samples, splash screen and GitHub push.
+- **Answers:** `answers/Lab7_Questions_Answers.md`.
+- **VB.NET modules/forms:** `AppLogger.vb`, `AppSettings.vb`, `GlobalExceptionHandler.vb`, `RealTimeRefresher.vb`, `AdvancedUi.vb`, `AdvancedChartControl.vb`, `MainMdiForm.vb`, `NotificationCenterForm.vb`, `SearchAdvancedForm.vb`, `SettingsForm.vb`, `VisualizationForm.vb`, `BulkGradeEntryForm.vb`, `ErrorDialogForm.vb`, `CodeSamplesForm.vb`, `LogViewerForm.vb`, `SplashForm.vb`, `ExportHelper.vb`.
+- **GitHub repository:** `https://github.com/winbert-code/db_timon_lab7_2411600248`.
+
+Lab 7 keeps the existing Lab 1–6 database unchanged. Login now opens `MainMdiForm`; role dashboards, reports, audit and backup tools are MDI children. `Help > Simulate Error` demonstrates the global handler, `Help > Code Samples` shows the key implementation snippets, and `Settings` controls the background refresh interval and row colouring.

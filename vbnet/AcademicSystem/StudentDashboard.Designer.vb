@@ -79,7 +79,7 @@ Namespace AcademicSystem
             '
             ' StudentDashboard
             '
-            Me.ClientSize = New Size(920, 640)
+            Me.ClientSize = New Size(1180, 620)
             Me.Controls.Add(Me.dgvGrades)
             Me.Controls.Add(Me.pnlSearch)
             Me.Controls.Add(Me.pnlAverages)

@@ -73,14 +73,9 @@ Namespace AcademicSystem
 
                 Db.UseRole(roleName)
 
-                Dim nextForm As Form
                 Select Case roleId
-                    Case 1
-                        nextForm = New AdminForm()
-                    Case 2
-                        nextForm = New TeacherDashboard()
-                    Case 3
-                        nextForm = New StudentDashboard()
+                    Case 1, 2, 3
+                        ' Supported roles open in the Lab 7 MDI workspace.
                     Case Else
                         Session.EndSession("FAILED_ROLE")
                         lblStatus.ForeColor = Color.Firebrick
@@ -89,19 +84,21 @@ Namespace AcademicSystem
                         Return
                 End Select
 
+                Dim workspace As New MainMdiForm()
                 Hide()
-                AddHandler nextForm.FormClosed,
+                AddHandler workspace.FormClosed,
                     Sub(sender2 As Object, e2 As FormClosedEventArgs)
                         txtPassword.Clear()
                         If Not String.IsNullOrEmpty(Session.SessionId) Then Session.EndSession("LOGOUT")
                         Db.UseRole("Admin")
                         Show()
                     End Sub
-                nextForm.Show()
+                workspace.Show()
 
             Catch ex As Exception
-                MessageBox.Show("Login failed: " & ex.Message, "Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error)
+                AppLogger.LogException("login", ex)
+                lblStatus.ForeColor = Color.Firebrick
+                lblStatus.Text = "Login failed. Details were written to the application log."
                 txtPassword.Clear()
             End Try
         End Sub

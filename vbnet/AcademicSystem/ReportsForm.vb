@@ -108,35 +108,22 @@ Namespace AcademicSystem
             End If
 
             Using dialog As New SaveFileDialog()
-                dialog.Filter = "CSV files (*.csv)|*.csv|Text files (*.txt)|*.txt"
+                dialog.Filter = "Excel workbook (*.xls)|*.xls|CSV files (*.csv)|*.csv|" &
+                                "PDF document (*.pdf)|*.pdf|Text files (*.txt)|*.txt"
                 dialog.FileName = If(cboReportType.SelectedIndex = 1,
                                      "course_analytics.csv", "student_transcript.csv")
 
                 If dialog.ShowDialog() = DialogResult.OK Then
                     Try
-                        Dim csv As New StringBuilder()
-
-                        Dim header As New List(Of String)()
-                        For Each column As DataColumn In _currentTable.Columns
-                            header.Add(EscapeCsv(column.ColumnName))
-                        Next
-                        csv.AppendLine(String.Join(",", header))
-
-                        For Each row As DataRow In _currentTable.Rows
-                            Dim values As New List(Of String)()
-                            For Each column As DataColumn In _currentTable.Columns
-                                values.Add(EscapeCsv(Convert.ToString(row(column))))
-                            Next
-                            csv.AppendLine(String.Join(",", values))
-                        Next
-
-                        File.WriteAllText(dialog.FileName, csv.ToString(), Encoding.UTF8)
+                        ExportHelper.ExportTable(_currentTable, dialog.FileName)
                         lblStatus.ForeColor = Color.SeaGreen
                         lblStatus.Text = "Exported " & _currentTable.Rows.Count & " row(s) to " &
                                          dialog.FileName
+                        AppLogger.Log("INFO", "Report exported: " & dialog.FileName)
                     Catch ex As Exception
                         lblStatus.ForeColor = Color.Firebrick
                         lblStatus.Text = "Export failed: " & ex.Message
+                        AppLogger.LogException("report export", ex)
                     End Try
                 End If
             End Using

@@ -12,7 +12,10 @@ Namespace AcademicSystem
 
             AddHandler btnCreateTeacher.Click, AddressOf BtnCreateTeacher_Click
             AddHandler btnResetPassword.Click, AddressOf BtnResetPassword_Click
-            AddHandler btnLogout.Click, Sub(sender As Object, e As EventArgs) Close()
+            AddHandler btnLogout.Click,
+                Sub(sender As Object, e As EventArgs)
+                    If TypeOf MdiParent Is MainMdiForm Then MdiParent.Close() Else Close()
+                End Sub
             AddHandler btnReports.Click, AddressOf BtnReports_Click
             AddHandler btnAuditLog.Click, AddressOf BtnAuditLog_Click
             AddHandler btnBackup.Click, AddressOf BtnBackup_Click
@@ -37,6 +40,12 @@ Namespace AcademicSystem
             If Not designTime Then
                 SessionUi.AddStatusBar(Me)
                 RefreshGrids()
+                AdvancedUi.ApplyGridFeatures(dgvUsers)
+                AdvancedUi.ApplyGridFeatures(dgvInstructors)
+                AdvancedUi.ApplyGridFeatures(dgvStudents)
+                AdvancedUi.ApplyGridFeatures(dgvAssignmentTypes)
+                AdvancedUi.ApplyGridFeatures(dgvAllGrades)
+                AdvancedUi.ApplyTooltips(Me)
             End If
         End Sub
 

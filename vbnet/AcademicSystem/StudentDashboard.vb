@@ -1,3 +1,5 @@
+Imports System.Data
+
 Namespace AcademicSystem
 
     <System.ComponentModel.DesignerCategory("Form")>
@@ -5,6 +7,7 @@ Namespace AcademicSystem
         Inherits Form
 
         Private _studentId As Integer
+        Private _refresher As RealTimeRefresher
 
         Public Sub New()
             InitializeComponent()
@@ -24,13 +27,29 @@ Namespace AcademicSystem
             Text = "Student Dashboard - " & Session.Username
             SessionUi.AddStatusBar(Me)
 
-            AddHandler btnLogout.Click, Sub(sender As Object, e As EventArgs) Close()
+            AddHandler btnLogout.Click,
+                Sub(sender As Object, e As EventArgs)
+                    If TypeOf MdiParent Is MainMdiForm Then MdiParent.Close() Else Close()
+                End Sub
             AddHandler btnSearch.Click, AddressOf BtnSearch_Click
             AddHandler txtSearch.KeyDown, AddressOf TxtSearch_KeyDown
+
+            Dim autoLabel As New Label() With {
+                .Name = "lblAutoRefresh", .Location = New Point(900, 16),
+                .Size = New Size(260, 34), .ForeColor = Color.SeaGreen,
+                .Font = New Font("Segoe UI", 9)
+            }
+            pnlSearch.Controls.Add(autoLabel)
 
             LoadProfile()
             RefreshGrades()
             RefreshAverages()
+            AdvancedUi.ApplyGridFeatures(dgvGrades)
+            AdvancedUi.ApplyGridFeatures(dgvAverages, averageColumn:="Average Grade")
+            AdvancedUi.ApplyTooltips(Me)
+
+            _refresher = New RealTimeRefresher(Me, AddressOf FetchGradesTable, AddressOf ApplyGrades)
+            _refresher.Start()
         End Sub
 
         Private Sub LoadProfile()
@@ -52,8 +71,8 @@ Namespace AcademicSystem
             End If
         End Sub
 
-        Private Sub RefreshGrades()
-            If _studentId <= 0 Then Return
+        Private Function FetchGradesTable() As DataTable
+            If _studentId <= 0 Then Return New DataTable()
 
             Dim sql As String =
                 "SELECT course_code AS 'Course Code', course_name AS 'Course', " &
@@ -70,7 +89,25 @@ Namespace AcademicSystem
             End If
 
             sql &= " ORDER BY course_code, type_name"
-            dgvGrades.DataSource = Db.FetchTable(sql, parameters)
+            Return Db.FetchTable(sql, parameters)
+        End Function
+
+        Private Sub ApplyGrades(table As DataTable)
+            If IsDisposed Then Return
+            dgvGrades.DataSource = table
+            AdvancedUi.ApplyGridFeatures(dgvGrades)
+            lblStatus.ForeColor = Color.SeaGreen
+            lblStatus.Text = table.Rows.Count & " grade row(s)."
+
+            Dim label As Control = pnlSearch.Controls("lblAutoRefresh")
+            If label IsNot Nothing Then
+                label.Text = "Auto-refresh #" & If(_refresher Is Nothing, 0, _refresher.RefreshCount) &
+                             vbCrLf & "Last: " & DateTime.Now.ToString("HH:mm:ss")
+            End If
+        End Sub
+
+        Private Sub RefreshGrades()
+            ApplyGrades(FetchGradesTable())
         End Sub
 
         Private Sub RefreshAverages()
@@ -82,6 +119,7 @@ Namespace AcademicSystem
                 "average_grade AS 'Average Grade', grades_recorded AS 'Grades Recorded' " &
                 "FROM student_course_averages " &
                 "WHERE student_id = @studentId ORDER BY course_code", parameters)
+            AdvancedUi.ApplyGridFeatures(dgvAverages, averageColumn:="Average Grade")
         End Sub
 
         Private Sub BtnSearch_Click(sender As Object, e As EventArgs)
@@ -94,6 +132,11 @@ Namespace AcademicSystem
                 RefreshGrades()
                 e.Handled = True
             End If
+        End Sub
+
+        Protected Overrides Sub OnFormClosed(e As FormClosedEventArgs)
+            If _refresher IsNot Nothing Then _refresher.StopRefresh()
+            MyBase.OnFormClosed(e)
         End Sub
 
     End Class

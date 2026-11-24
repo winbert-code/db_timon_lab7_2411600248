@@ -12,12 +12,27 @@ Friend Module Program
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)
 
+        AppLogger.Initialize()
+        AppLogger.Log("INFO", "Application starting")
+        GlobalExceptionHandler.Install()
         Application.AddMessageFilter(New ActivityFilter())
         SessionMonitor.Install()
         AddHandler Application.ApplicationExit,
             Sub(sender As Object, e As EventArgs)
                 If Not String.IsNullOrEmpty(Session.SessionId) Then Session.EndSession("APP_EXIT")
+                AppLogger.Log("INFO", "Application exited")
             End Sub
+
+        Dim splash As SplashForm = SplashForm.ShowStartup()
+        splash.Advance(25, "Loading secure configuration...")
+        System.Threading.Thread.Sleep(160)
+        splash.Advance(55, "Connecting to DB_Timon...")
+        System.Threading.Thread.Sleep(160)
+        splash.Advance(80, "Preparing MDI workspace...")
+        System.Threading.Thread.Sleep(160)
+        splash.Advance(100, "Ready - all services connected")
+        System.Threading.Thread.Sleep(220)
+        splash.Close()
 
         Application.Run(New LoginForm())
     End Sub

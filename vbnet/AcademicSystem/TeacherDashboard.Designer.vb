@@ -134,7 +134,7 @@ Namespace AcademicSystem
             '
             ' TeacherDashboard
             '
-            Me.ClientSize = New Size(940, 680)
+            Me.ClientSize = New Size(1180, 620)
             Me.Controls.Add(Me.pnlEntry)
             Me.Controls.Add(Me.dgvOverview)
             Me.Controls.Add(Me.header)

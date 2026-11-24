@@ -7,6 +7,8 @@ Namespace AcademicSystem
     Partial Public Class TeacherDashboard
         Inherits Form
 
+        Private _refresher As RealTimeRefresher
+
         Public Sub New()
             InitializeComponent()
 
@@ -27,7 +29,10 @@ Namespace AcademicSystem
                           "  |  Course overview and gradebook entry"
             SessionUi.AddStatusBar(Me)
 
-            AddHandler btnLogout.Click, Sub(sender As Object, e As EventArgs) Close()
+            AddHandler btnLogout.Click,
+                Sub(sender As Object, e As EventArgs)
+                    If TypeOf MdiParent Is MainMdiForm Then MdiParent.Close() Else Close()
+                End Sub
             AddHandler btnReports.Click, AddressOf BtnReports_Click
             AddHandler btnSaveGrade.Click, AddressOf BtnSaveGrade_Click
             AddHandler btnCalculate.Click, AddressOf BtnCalculate_Click
@@ -35,8 +40,20 @@ Namespace AcademicSystem
             AddHandler cboCourse.SelectedIndexChanged, AddressOf CboCourse_SelectedIndexChanged
             AddHandler txtSearch.KeyDown, AddressOf TxtSearch_KeyDown
 
+            Dim autoLabel As New Label() With {
+                .Name = "lblAutoRefresh", .Location = New Point(900, 178),
+                .Size = New Size(260, 36), .ForeColor = Color.SeaGreen,
+                .Font = New Font("Segoe UI", 9)
+            }
+            pnlEntry.Controls.Add(autoLabel)
+
             LoadCombos()
             RefreshOverview()
+            AdvancedUi.ApplyGridFeatures(dgvOverview)
+            AdvancedUi.ApplyTooltips(Me)
+
+            _refresher = New RealTimeRefresher(Me, AddressOf FetchOverview, AddressOf ApplyOverview)
+            _refresher.Start()
         End Sub
 
         Private Sub LoadCombos()
@@ -87,7 +104,7 @@ Namespace AcademicSystem
                    System.ComponentModel.LicenseUsageMode.Designtime
         End Function
 
-        Private Sub RefreshOverview()
+        Private Function FetchOverview() As DataTable
             Dim sql As String =
                 "SELECT course_code AS 'Course', type_name AS 'Assignment', " &
                 "submissions AS 'Submissions', average_grade AS 'Average Grade' " &
@@ -102,7 +119,25 @@ Namespace AcademicSystem
                 parameters.Add("@q1", InputValidator.SafeLike(search))
             End If
 
-            dgvOverview.DataSource = Db.FetchTable(sql, parameters)
+            Return Db.FetchTable(sql, parameters)
+        End Function
+
+        Private Sub ApplyOverview(table As DataTable)
+            If IsDisposed Then Return
+            dgvOverview.DataSource = table
+            AdvancedUi.ApplyGridFeatures(dgvOverview)
+            lblStatus.ForeColor = Color.SeaGreen
+            lblStatus.Text = table.Rows.Count & " overview row(s)."
+
+            Dim label As Control = pnlEntry.Controls("lblAutoRefresh")
+            If label IsNot Nothing Then
+                label.Text = "Auto-refresh #" & If(_refresher Is Nothing, 0, _refresher.RefreshCount) &
+                             vbCrLf & "Last: " & DateTime.Now.ToString("HH:mm:ss")
+            End If
+        End Sub
+
+        Private Sub RefreshOverview()
+            ApplyOverview(FetchOverview())
         End Sub
 
         Private Sub BtnSearch_Click(sender As Object, e As EventArgs)
@@ -153,6 +188,7 @@ Namespace AcademicSystem
             lblStatus.Text = "Grade saved (rows affected: " & rows & ")."
             txtGrade.Clear()
             RefreshOverview()
+            AppLogger.Log("INFO", "Teacher saved a grade in course " & Convert.ToString(cboCourse.SelectedValue))
         End Sub
 
         Private Sub BtnCalculate_Click(sender As Object, e As EventArgs)
@@ -186,15 +222,24 @@ Namespace AcademicSystem
             Catch ex As Exception
                 lblStatus.ForeColor = Color.Firebrick
                 lblStatus.Text = "Calculation failed: " & ex.Message
+                AppLogger.LogException("grade calculation", ex)
             End Try
         End Sub
 
         Private Sub BtnReports_Click(sender As Object, e As EventArgs)
             Dim reports As New ReportsForm()
-            AddHandler reports.FormClosed,
-                Sub(sender2 As Object, e2 As FormClosedEventArgs) Show()
-            Hide()
+            reports.MdiParent = If(TypeOf MdiParent Is MainMdiForm, MdiParent, Nothing)
+            AdvancedUi.CentreChild(reports, If(reports.MdiParent IsNot Nothing, reports.MdiParent, Me))
+            If reports.MdiParent Is Nothing Then
+                AddHandler reports.FormClosed, Sub(sender2 As Object, e2 As FormClosedEventArgs) Show()
+                Hide()
+            End If
             reports.Show()
+        End Sub
+
+        Protected Overrides Sub OnFormClosed(e As FormClosedEventArgs)
+            If _refresher IsNot Nothing Then _refresher.StopRefresh()
+            MyBase.OnFormClosed(e)
         End Sub
 
     End Class
