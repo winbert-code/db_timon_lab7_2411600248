@@ -185,7 +185,7 @@ For any ER diagram screenshot: in dbGate right-click `DB_Timon` → **ER diagram
 
 - **Completed PDF:** `output/results/Lab5_Completed.pdf` (generated from the original Lab 5 `.docx` template with all 82 original non-empty paragraphs preserved; header name `Winbert Joe M. Timon` and a written Conclusion were added).
 - **Completed Word source:** `output/results/Lab5_Completed.docx`.
-- **18 screenshots:** `output/results/screenshots/` (numbered `01_` through `13_vbnet_teacher_grade_calc.png`, including the before/after `EXPLAIN` plans, stored-procedure outputs, EER diagram, reports, CSV export and grade calculation).
+- **18 screenshots:** `output/results/` (numbered `01_` through `13_vbnet_teacher_grade_calc.png`, including the before/after `EXPLAIN` plans, stored-procedure outputs, EER diagram, reports, CSV export and grade calculation).
 - **Exported sample CSV:** `output/results/course_analytics.csv`.
 - **Answers:** `answers/Lab5_Questions_Answers.md`.
 
@@ -208,7 +208,7 @@ For any ER diagram screenshot: in dbGate right-click `DB_Timon` → **ER diagram
 
 - **Completed PDF:** `output/results/Lab6_Completed.pdf` (built from the original Lab 6 `.docx` template with the required screenshots, short answers, header name and conclusion).
 - **Completed Word source:** `output/results/Lab6_Completed.docx`.
-- **Screenshots:** `output/results/screenshots/lab6_*.png` — role grants, role connections, audit records, triggers, validation errors, EER diagram, audit viewer, sessions, backup utility and GitHub push.
+- **Screenshots:** `output/results/lab6_*.png` — role grants, role connections, audit records, triggers, validation errors, EER diagram, audit viewer, sessions, backup utility and GitHub push.
 - **Answers:** `answers/Lab6_Questions_Answers.md`.
 - **SQL:** `sql/10_Lab6_Security_Audit_Backup.sql` (also appended to `sql/00_ALL_SQL_Combined.sql`).
 - **VB.NET modules/forms:** `SecureConfig.vb`, `Db.vb`, `Session.vb`, `SessionMonitor.vb`, `InputValidator.vb`, `AuditLogger.vb`, `AuditLogForm.vb`, `BackupForm.vb`, `PdfExporter.vb`.
@@ -221,7 +221,7 @@ Run `sql/10_Lab6_Security_Audit_Backup.sql` after the earlier lab scripts. It is
 
 - **Completed PDF:** `output/results/Lab7_Completed.pdf` (built from the original Lab 7 `.docx` template with full, uncropped screenshots, short answers, header name and conclusion).
 - **Completed Word source:** `output/results/Lab7_Completed.docx`.
-- **Screenshots:** `output/results/screenshots/lab7_*.png` — MDI parent, charts/graphs, advanced DataGridView row colouring, notification center, advanced search, real-time refresh, custom error dialog, settings, bulk grade entry, code samples, splash screen and GitHub push.
+- **Screenshots:** `output/results/lab7_*.png` — full-screen captures of the MDI parent, charts/graphs, advanced DataGridView row colouring, notification center, advanced search, real-time refresh, custom error dialog, settings, bulk grade entry, code samples, splash screen and GitHub push.
 - **Answers:** `answers/Lab7_Questions_Answers.md`.
 - **VB.NET modules/forms:** `AppLogger.vb`, `AppSettings.vb`, `GlobalExceptionHandler.vb`, `RealTimeRefresher.vb`, `AdvancedUi.vb`, `AdvancedChartControl.vb`, `MainMdiForm.vb`, `NotificationCenterForm.vb`, `SearchAdvancedForm.vb`, `SettingsForm.vb`, `VisualizationForm.vb`, `BulkGradeEntryForm.vb`, `ErrorDialogForm.vb`, `CodeSamplesForm.vb`, `LogViewerForm.vb`, `SplashForm.vb`, `ExportHelper.vb`.
 - **GitHub repository:** `https://github.com/winbert-code/db_timon_lab7_2411600248`.

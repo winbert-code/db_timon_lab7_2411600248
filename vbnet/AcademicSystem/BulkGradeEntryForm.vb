@@ -92,12 +92,29 @@ Namespace AcademicSystem
             _type.ValueMember = "Value"
         End Sub
 
+        Private Function SelectedId(combo As ComboBox) As Integer
+            Dim value As Object = combo.SelectedValue
+            If value IsNot Nothing AndAlso Not TypeOf value Is DataRowView Then
+                Dim parsed As Integer
+                If Integer.TryParse(Convert.ToString(value), parsed) Then Return parsed
+            End If
+
+            Dim row As DataRowView = TryCast(combo.SelectedItem, DataRowView)
+            If row IsNot Nothing Then
+                Dim parsed As Integer
+                If Integer.TryParse(Convert.ToString(row("Value")), parsed) Then Return parsed
+            End If
+            Return 0
+        End Function
+
         Private Sub LoadStudents()
-            If _course.SelectedValue Is Nothing OrElse _type.SelectedValue Is Nothing Then Return
+            Dim courseId As Integer = SelectedId(_course)
+            Dim typeId As Integer = SelectedId(_type)
+            If courseId = 0 OrElse typeId = 0 Then Return
             Try
                 Dim parameters As New Dictionary(Of String, Object) From {
-                    {"@courseId", Convert.ToInt32(_course.SelectedValue)},
-                    {"@typeId", Convert.ToInt32(_type.SelectedValue)}
+                    {"@courseId", courseId},
+                    {"@typeId", typeId}
                 }
                 Dim table As DataTable = Db.FetchTable(
                     "SELECT s.student_id AS 'Student ID', " &
@@ -154,8 +171,8 @@ Namespace AcademicSystem
                             Else
                                 Dim parameters As New Dictionary(Of String, Object) From {
                                     {"@sid", Convert.ToInt32(table.Rows(index)("Student ID"))},
-                                    {"@cid", Convert.ToInt32(_course.SelectedValue)},
-                                    {"@tid", Convert.ToInt32(_type.SelectedValue)},
+                                    {"@cid", SelectedId(_course)},
+                                    {"@tid", SelectedId(_type)},
                                     {"@grade", grade}
                                 }
                                 Using command As New MySqlCommand(
@@ -176,7 +193,7 @@ Namespace AcademicSystem
 
                 _status.ForeColor = Color.SeaGreen
                 _status.Text = "Saved " & saved & " grade(s), skipped " & skipped & " invalid/empty row(s)."
-                AuditLogger.Log("BULK_GRADE_ENTRY", "grades", Convert.ToString(_course.SelectedValue), "",
+                AuditLogger.Log("BULK_GRADE_ENTRY", "grades", Convert.ToString(SelectedId(_course)), "",
                                 saved & " saved, " & skipped & " skipped")
                 AppLogger.Log("INFO", "Bulk grade entry: saved=" & saved & " skipped=" & skipped)
             Catch ex As Exception
