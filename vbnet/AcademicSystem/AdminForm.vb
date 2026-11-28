@@ -11,6 +11,7 @@ Namespace AcademicSystem
             InitializeComponent()
 
             AddHandler btnCreateTeacher.Click, AddressOf BtnCreateTeacher_Click
+            AddHandler btnCreateStudent.Click, AddressOf BtnCreateStudent_Click
             AddHandler btnResetPassword.Click, AddressOf BtnResetPassword_Click
             AddHandler btnLogout.Click,
                 Sub(sender As Object, e As EventArgs)
@@ -376,6 +377,11 @@ Namespace AcademicSystem
                 lblAddStatus.Text = "Invalid username format (letters, digits, dot, dash, underscore; 3-30 characters)."
                 Return
             End If
+            If Not InputValidator.IsUniqueUsername(username) Then
+                lblAddStatus.ForeColor = Color.Firebrick
+                lblAddStatus.Text = "Username '" & username & "' already exists."
+                Return
+            End If
             If Not InputValidator.IsStrongPassword(password) Then
                 lblAddStatus.ForeColor = Color.Firebrick
                 lblAddStatus.Text = "Weak password: use at least 8 characters with upper/lower case, a digit and a symbol."
@@ -447,6 +453,107 @@ Namespace AcademicSystem
             Catch ex As Exception
                 lblAddStatus.ForeColor = Color.Firebrick
                 lblAddStatus.Text = "Could not create teacher: " & ex.Message
+            End Try
+        End Sub
+
+        Private Sub BtnCreateStudent_Click(sender As Object, e As EventArgs)
+            lblStudentStatus.Text = ""
+
+            Dim username As String = InputValidator.Sanitize(txtStudentUsername.Text)
+            Dim password As String = txtStudentPassword.Text
+            Dim email As String = InputValidator.Sanitize(txtStudentEmail.Text)
+            Dim first As String = InputValidator.Sanitize(txtStudentFirstName.Text)
+            Dim last As String = InputValidator.Sanitize(txtStudentLastName.Text)
+            Dim birth As DateTime = dtpStudentBirthDate.Value.Date
+
+            If Not InputValidator.IsValidUsername(username) Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Invalid username format (letters, digits, dot, dash, underscore; 3-30 characters)."
+                Return
+            End If
+            If Not InputValidator.IsUniqueUsername(username) Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Username '" & username & "' already exists."
+                Return
+            End If
+            If Not InputValidator.IsStrongPassword(password) Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Weak password: use at least 8 characters with upper/lower case, a digit and a symbol."
+                Return
+            End If
+            If email.Length > 0 AndAlso Not InputValidator.IsValidEmail(email) Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Invalid email format. Example: name@example.com"
+                Return
+            End If
+            If String.IsNullOrWhiteSpace(first) OrElse String.IsNullOrWhiteSpace(last) Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "First name and last name are required."
+                Return
+            End If
+            If birth > DateTime.Today Then
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Birth date cannot be in the future."
+                Return
+            End If
+
+            Dim hash As String = PasswordHasher.HashPassword(password)
+
+            Try
+                Using connection = Db.GetConnection()
+                    connection.Open()
+                    Using transaction = connection.BeginTransaction()
+                        Try
+                            Dim userId As Integer
+
+                            ' Step 1: create the login account with the Student role (role_id = 3).
+                            Using command As New MySqlCommand(
+                                "INSERT INTO users (username, password_hash, email, role_id) " &
+                                "VALUES (@username, @hash, @email, 3); SELECT LAST_INSERT_ID();",
+                                connection, transaction)
+                                command.Parameters.AddWithValue("@username", username)
+                                command.Parameters.AddWithValue("@hash", hash)
+                                command.Parameters.AddWithValue("@email", If(email, DBNull.Value))
+                                userId = Convert.ToInt32(command.ExecuteScalar())
+                            End Using
+
+                            ' Step 2: create the matching Student profile using that user_id.
+                            Using command As New MySqlCommand(
+                                "INSERT INTO students (user_id, first_name, last_name, date_of_birth) " &
+                                "VALUES (@userId, @first, @last, @birth)",
+                                connection, transaction)
+                                command.Parameters.AddWithValue("@userId", userId)
+                                command.Parameters.AddWithValue("@first", first)
+                                command.Parameters.AddWithValue("@last", last)
+                                command.Parameters.AddWithValue("@birth", birth)
+                                command.ExecuteNonQuery()
+                            End Using
+
+                            transaction.Commit()
+                            lblStudentStatus.ForeColor = Color.SeaGreen
+                            lblStudentStatus.Text = "Student created: " & username &
+                                                    " (user_id = " & userId & ")."
+
+                        Catch ex As Exception
+                            transaction.Rollback()
+                            Throw
+                        End Try
+                    End Using
+                End Using
+
+                AuditLogger.Log("INSERT", "students", username, "", first & " " & last)
+
+                txtStudentUsername.Clear()
+                txtStudentPassword.Clear()
+                txtStudentEmail.Clear()
+                txtStudentFirstName.Clear()
+                txtStudentLastName.Clear()
+                dtpStudentBirthDate.Value = New DateTime(2005, 1, 1)
+                RefreshGrids()
+
+            Catch ex As Exception
+                lblStudentStatus.ForeColor = Color.Firebrick
+                lblStudentStatus.Text = "Could not create student: " & ex.Message
             End Try
         End Sub
 

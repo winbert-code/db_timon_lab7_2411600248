@@ -36,6 +36,13 @@ Namespace AcademicSystem
             Return EmailPattern.IsMatch(Sanitize(value))
         End Function
 
+        Friend Function IsUniqueUsername(username As String) As Boolean
+            Dim found = Db.FetchTable(
+                "SELECT COUNT(*) AS total FROM users WHERE username = @username",
+                New Dictionary(Of String, Object) From {{"@username", Sanitize(username)}})
+            Return Convert.ToInt32(found.Rows(0)("total")) = 0
+        End Function
+
         Friend Function IsValidCourseCode(value As String) As Boolean
             Return CourseCodePattern.IsMatch(Sanitize(value).ToUpperInvariant())
         End Function

@@ -224,6 +224,7 @@ Run `sql/10_Lab6_Security_Audit_Backup.sql` after the earlier lab scripts. It is
 - **Screenshots:** `output/results/lab7_*.png` — full-screen captures of the MDI parent, charts/graphs, advanced DataGridView row colouring, notification center, advanced search, real-time refresh, custom error dialog, settings, bulk grade entry, code samples, splash screen and GitHub push.
 - **Answers:** `answers/Lab7_Questions_Answers.md`.
 - **VB.NET modules/forms:** `AppLogger.vb`, `AppSettings.vb`, `GlobalExceptionHandler.vb`, `RealTimeRefresher.vb`, `AdvancedUi.vb`, `AdvancedChartControl.vb`, `MainMdiForm.vb`, `NotificationCenterForm.vb`, `SearchAdvancedForm.vb`, `SettingsForm.vb`, `VisualizationForm.vb`, `BulkGradeEntryForm.vb`, `ErrorDialogForm.vb`, `CodeSamplesForm.vb`, `LogViewerForm.vb`, `SplashForm.vb`, `ExportHelper.vb`.
+- **Admin management:** creates teacher, student and course records with hashed passwords and enrolls students through `sp_EnrollStudent`.
 - **GitHub repository:** `https://github.com/winbert-code/db_timon_lab7_2411600248`.
 
 Lab 7 keeps the existing Lab 1–6 database unchanged. Login now opens `MainMdiForm`; role dashboards, reports, audit and backup tools are MDI children. `Help > Simulate Error` demonstrates the global handler, `Help > Code Samples` shows the key implementation snippets, and `Settings` controls the background refresh interval and row colouring.
