@@ -1,3 +1,5 @@
+Imports System.Data
+
 Namespace AcademicSystem
 
     ' Holds the logged-in user and manages login/logout, activity tracking,
@@ -31,7 +33,32 @@ Namespace AcademicSystem
         ' account already has an ACTIVE row in user_sessions.
         Friend Sub StartSession(pUserId As Integer, pUsername As String,
                                 pRoleId As Integer, pRoleName As String)
-            Dim existing = Db.FetchTable(
+            ' A crashed/killed client cannot run EndSession, so its ACTIVE row can
+        ' outlive the inactivity window. Expire those stale rows before deciding
+        ' that a real user is already logged in.
+        Dim staleParams As New Dictionary(Of String, Object) From {
+            {"@userId", pUserId},
+            {"@minutes", InactivityMinutes}
+        }
+        Dim stale = Db.FetchTable(
+                "SELECT session_id FROM user_sessions " &
+                "WHERE user_id = @userId AND status = 'ACTIVE' " &
+                "AND last_activity < DATE_SUB(NOW(), INTERVAL @minutes MINUTE)",
+                staleParams, "Admin")
+
+        If stale.Rows.Count > 0 Then
+            For Each row As DataRow In stale.Rows
+                AuditLogger.Log("TIMEOUT", "user_sessions", Convert.ToString(row("session_id")),
+                                "ACTIVE", "stale session auto-expired at next login")
+            Next
+            Db.Execute(
+                "UPDATE user_sessions SET status = 'TIMED_OUT', logout_time = NOW(), " &
+                "last_activity = NOW() WHERE user_id = @userId AND status = 'ACTIVE' " &
+                "AND last_activity < DATE_SUB(NOW(), INTERVAL @minutes MINUTE)",
+                staleParams, "Admin")
+        End If
+
+        Dim existing = Db.FetchTable(
                 "SELECT session_id, login_time FROM user_sessions " &
                 "WHERE user_id = @userId AND status = 'ACTIVE'",
                 New Dictionary(Of String, Object) From {{"@userId", pUserId}},
