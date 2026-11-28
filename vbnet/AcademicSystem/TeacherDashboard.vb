@@ -82,7 +82,7 @@ Namespace AcademicSystem
             If cboCourse.SelectedValue Is Nothing Then Return
 
             Dim parameters As New Dictionary(Of String, Object) From {
-                {"@courseId", Convert.ToInt32(cboCourse.SelectedValue)}
+                {"@courseId", ComboHelper.SelectedId(cboCourse)}
             }
             Dim students = Db.FetchTable(
                 "SELECT s.student_id AS Value, " &
@@ -172,9 +172,9 @@ Namespace AcademicSystem
             End If
 
             Dim parameters As New Dictionary(Of String, Object) From {
-                {"@studentId", Convert.ToInt32(cboStudent.SelectedValue)},
-                {"@courseId", Convert.ToInt32(cboCourse.SelectedValue)},
-                {"@typeId", Convert.ToInt32(cboType.SelectedValue)},
+                {"@studentId", ComboHelper.SelectedId(cboStudent)},
+                {"@courseId", ComboHelper.SelectedId(cboCourse)},
+                {"@typeId", ComboHelper.SelectedId(cboType)},
                 {"@grade", grade}
             }
 
@@ -188,7 +188,7 @@ Namespace AcademicSystem
             lblStatus.Text = "Grade saved (rows affected: " & rows & ")."
             txtGrade.Clear()
             RefreshOverview()
-            AppLogger.Log("INFO", "Teacher saved a grade in course " & Convert.ToString(cboCourse.SelectedValue))
+            AppLogger.Log("INFO", "Teacher saved a grade in course id " & ComboHelper.SelectedId(cboCourse).ToString())
         End Sub
 
         Private Sub BtnCalculate_Click(sender As Object, e As EventArgs)
@@ -198,7 +198,7 @@ Namespace AcademicSystem
                 Return
             End If
 
-            Dim studentId As Integer = Convert.ToInt32(cboStudent.SelectedValue)
+            Dim studentId As Integer = ComboHelper.SelectedId(cboStudent)
 
             Try
                 Using connection = Db.GetConnection()

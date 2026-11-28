@@ -92,24 +92,9 @@ Namespace AcademicSystem
             _type.ValueMember = "Value"
         End Sub
 
-        Private Function SelectedId(combo As ComboBox) As Integer
-            Dim value As Object = combo.SelectedValue
-            If value IsNot Nothing AndAlso Not TypeOf value Is DataRowView Then
-                Dim parsed As Integer
-                If Integer.TryParse(Convert.ToString(value), parsed) Then Return parsed
-            End If
-
-            Dim row As DataRowView = TryCast(combo.SelectedItem, DataRowView)
-            If row IsNot Nothing Then
-                Dim parsed As Integer
-                If Integer.TryParse(Convert.ToString(row("Value")), parsed) Then Return parsed
-            End If
-            Return 0
-        End Function
-
         Private Sub LoadStudents()
-            Dim courseId As Integer = SelectedId(_course)
-            Dim typeId As Integer = SelectedId(_type)
+            Dim courseId As Integer = ComboHelper.SelectedId(_course)
+            Dim typeId As Integer = ComboHelper.SelectedId(_type)
             If courseId = 0 OrElse typeId = 0 Then Return
             Try
                 Dim parameters As New Dictionary(Of String, Object) From {
@@ -171,8 +156,8 @@ Namespace AcademicSystem
                             Else
                                 Dim parameters As New Dictionary(Of String, Object) From {
                                     {"@sid", Convert.ToInt32(table.Rows(index)("Student ID"))},
-                                    {"@cid", SelectedId(_course)},
-                                    {"@tid", SelectedId(_type)},
+                                    {"@cid", ComboHelper.SelectedId(_course)},
+                                    {"@tid", ComboHelper.SelectedId(_type)},
                                     {"@grade", grade}
                                 }
                                 Using command As New MySqlCommand(
@@ -193,7 +178,7 @@ Namespace AcademicSystem
 
                 _status.ForeColor = Color.SeaGreen
                 _status.Text = "Saved " & saved & " grade(s), skipped " & skipped & " invalid/empty row(s)."
-                AuditLogger.Log("BULK_GRADE_ENTRY", "grades", Convert.ToString(SelectedId(_course)), "",
+                AuditLogger.Log("BULK_GRADE_ENTRY", "grades", Convert.ToString(ComboHelper.SelectedId(_course)), "",
                                 saved & " saved, " & skipped & " skipped")
                 AppLogger.Log("INFO", "Bulk grade entry: saved=" & saved & " skipped=" & skipped)
             Catch ex As Exception

@@ -228,8 +228,8 @@ Namespace AcademicSystem
             End If
 
             Dim message As String = CallEnrollProcedure(
-                Convert.ToInt32(cboEnrollStudent.SelectedValue),
-                Convert.ToInt32(cboEnrollCourse.SelectedValue))
+                ComboHelper.SelectedId(cboEnrollStudent),
+                ComboHelper.SelectedId(cboEnrollCourse))
 
             lblEnrollStatus.ForeColor = If(message.StartsWith("Error"), Color.Firebrick, Color.SeaGreen)
             lblEnrollStatus.Text = message
@@ -260,7 +260,7 @@ Namespace AcademicSystem
                 Return
             End If
 
-            Dim studentId As Integer = Convert.ToInt32(cboEnrollStudent.SelectedValue)
+            Dim studentId As Integer = ComboHelper.SelectedId(cboEnrollStudent)
             Dim succeeded As Integer = 0
             Dim skipped As Integer = 0
 
@@ -347,7 +347,7 @@ Namespace AcademicSystem
                     New Dictionary(Of String, Object) From {
                         {"@code", code},
                         {"@name", name},
-                        {"@instructorId", Convert.ToInt32(cboCourseInstructor.SelectedValue)}
+                        {"@instructorId", ComboHelper.SelectedId(cboCourseInstructor)}
                     })
 
                 AuditLogger.Log("INSERT", "courses", code, "", name)
